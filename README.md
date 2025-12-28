@@ -209,6 +209,7 @@
 ### Database Schema
 
 ```sql
+-- SQLite (legacy)
 CREATE TABLE articles (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   title TEXT NOT NULL,
@@ -218,6 +219,20 @@ CREATE TABLE articles (
   original_article_id INTEGER REFERENCES articles(id),
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+```sql
+-- PostgreSQL (Neon)
+CREATE TABLE IF NOT EXISTS articles (
+  id BIGSERIAL PRIMARY KEY,
+  title TEXT NOT NULL,
+  content TEXT NOT NULL,
+  source_url TEXT NOT NULL UNIQUE,
+  type TEXT NOT NULL DEFAULT 'original',
+  original_article_id BIGINT REFERENCES articles(id),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 ```
 
@@ -775,6 +790,22 @@ beyondchats-ai-article-pipeline/
 | `SERPER_API_KEY` | Google Search API key | **Yes** | - | [Get free key](https://serper.dev/) |
 | `GROQ_API_KEY` | Groq AI API key | **Yes** | - | [Get free key](https://console.groq.com/) |
 | `LLM_MODEL` | Groq model name | No | `llama-3.1-70b-versatile` | N/A |
+| `DATABASE_URL` | Neon Postgres URL | **Yes** | - | From Neon dashboard |
+
+Example:
+
+```
+DATABASE_URL=postgresql://user:password@your-neon-host/dbname?sslmode=require
+```
+
+### Serverless-safe Postgres (Neon)
+
+- Use a singleton `Pool` and reuse across invocations to avoid connection storms.
+- Keep `max` small (e.g., 5) and set `idleTimeoutMillis` and `connectionTimeoutMillis` to conservative values.
+- Enable SSL only when required (Neon uses `sslmode=require`).
+- Prefer short-lived queries; avoid long transactions in serverless.
+- Use `RETURNING` for inserts/updates to get ids without extra round-trips.
+- In this repo, see backend config at [backend/src/config/database.js](backend/src/config/database.js) and schema at [backend/db/schema.sql](backend/db/schema.sql).
 
 ### Frontend (.env)
 

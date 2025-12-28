@@ -1,0 +1,19 @@
+[build]
+# Install dependencies; we publish a minimal folder since this is API-only
+command = "npm ci"
+publish = "public"
+
+[functions]
+directory = "netlify/functions"
+node_bundler = "esbuild"
+
+# Route direct API calls to the serverless function
+[[redirects]]
+from = "/articles/*"
+to = "/.netlify/functions/api/articles/:splat"
+status = 200
+
+[[redirects]]
+from = "/health"
+to = "/.netlify/functions/api/health"
+status = 200

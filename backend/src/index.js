@@ -1,25 +1,9 @@
 import 'dotenv/config';
-import express from 'express';
-import cors from 'cors';
+import app from './app.js';
 import { initializeDatabase } from './config/database.js';
-import articlesRouter from './routes/articles.js';
 import * as articleModel from './models/articleModel.js';
 import { scrapeOldestArticles } from './utils/scraper.js';
-
-const app = express();
 const PORT = process.env.PORT || 3000;
-
-// Middleware
-app.use(cors());
-app.use(express.json());
-
-// Routes
-app.use('/articles', articlesRouter);
-
-// Health check
-app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'ok' });
-});
 
 // Check and auto-scrape articles if database is empty
 const checkAndScrapeArticles = async () => {
