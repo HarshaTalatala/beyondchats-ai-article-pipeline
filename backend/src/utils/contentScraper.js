@@ -1,6 +1,6 @@
 import axios from 'axios';
 import * as cheerio from 'cheerio';
-import { JSDOM } from 'jsdom';
+import { JSDOM, VirtualConsole } from 'jsdom';
 import { Readability } from '@mozilla/readability';
 
 const TIMEOUT = 15000;
@@ -23,7 +23,7 @@ export const scrapeArticleContent = async (url) => {
 
     // First attempt: Readability for cleaner article extraction
     try {
-      const virtualConsole = new JSDOM.VirtualConsole();
+      const virtualConsole = new VirtualConsole();
       virtualConsole.on('error', () => {});
       virtualConsole.on('warn', () => {});
       
