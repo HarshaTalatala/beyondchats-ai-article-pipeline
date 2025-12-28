@@ -21,6 +21,7 @@ export const initializeDatabase = () => {
           content TEXT NOT NULL,
           source_url TEXT NOT NULL UNIQUE,
           type TEXT NOT NULL DEFAULT 'original',
+          original_article_id INTEGER REFERENCES articles(id),
           created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
           updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
@@ -28,8 +29,30 @@ export const initializeDatabase = () => {
         if (err) {
           reject(err);
         } else {
-          console.log('✓ Database initialized');
-          resolve();
+          // Ensure older databases get the new column without forcing a migration file
+          db.all("PRAGMA table_info(articles);", (infoErr, columns) => {
+            if (infoErr) {
+              return reject(infoErr);
+            }
+
+            const hasOriginalRef = columns.some((col) => col.name === 'original_article_id');
+
+            if (hasOriginalRef) {
+              console.log('✓ Database initialized');
+              return resolve();
+            }
+
+            db.run(
+              'ALTER TABLE articles ADD COLUMN original_article_id INTEGER REFERENCES articles(id)',
+              (alterErr) => {
+                if (alterErr) {
+                  return reject(alterErr);
+                }
+                console.log('✓ Database initialized (added original_article_id column)');
+                resolve();
+              }
+            );
+          });
         }
       });
     });

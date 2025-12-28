@@ -1,5 +1,6 @@
 import express from 'express';
 import * as articleModel from '../models/articleModel.js';
+import { enhanceArticleById } from '../services/aiEnhancerService.js';
 
 const router = express.Router();
 
@@ -124,6 +125,31 @@ router.delete('/:id', async (req, res) => {
     }
     res.status(500).json({
       error: error.message
+    });
+  }
+});
+
+// POST /articles/:id/enhance - Generate an AI-enhanced version of an original article
+router.post('/:id/enhance', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const generatedArticle = await enhanceArticleById(id);
+
+    res.status(201).json({
+      success: true,
+      data: generatedArticle
+    });
+  } catch (error) {
+    if (error.message === 'Article not found') {
+      return res.status(404).json({ error: error.message });
+    }
+
+    if (error.message === 'Only original articles can be enhanced') {
+      return res.status(400).json({ error: error.message });
+    }
+
+    res.status(500).json({
+      error: error.message || 'Failed to enhance article'
     });
   }
 });

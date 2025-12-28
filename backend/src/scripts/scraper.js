@@ -22,17 +22,13 @@ const main = async () => {
     console.log(`✓ Found ${articles.length} articles\n`);
 
     // Store in database
-    console.log('💾 Storing articles in database...');
+    console.log('💾 Storing articles in database (upsert by source_url)...');
     for (const article of articles) {
       try {
-        const saved = await articleModel.createArticle(article);
-        console.log(`✓ Saved: "${saved.title.substring(0, 50)}..."`);
+        const saved = await articleModel.upsertArticle(article);
+        console.log(`✓ Saved/updated: "${article.title.substring(0, 60)}..."`);
       } catch (err) {
-        if (err.message.includes('UNIQUE constraint failed')) {
-          console.log(`⊘ Already exists: "${article.title.substring(0, 50)}..."`);
-        } else {
-          console.error(`❌ Error saving article:`, err.message);
-        }
+        console.error(`❌ Error saving article:`, err.message);
       }
     }
 

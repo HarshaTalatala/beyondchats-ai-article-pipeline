@@ -1,5 +1,6 @@
 import axios from 'axios';
 import * as cheerio from 'cheerio';
+import { scrapeArticleContent } from './contentScraper.js';
 
 const SCRAPER_URL = process.env.SCRAPER_URL || 'https://beyondchats.com/blogs/';
 
@@ -27,22 +28,19 @@ export const scrapeOldestArticles = async (limit = 5) => {
     articleElements.each((index, element) => {
       try {
         const $el = $(element);
-        
-        // Try multiple selector patterns
-        const title = $el.find('h2, h3, .title, [class*="title"]').first().text().trim() ||
-                      $el.find('a').first().text().trim();
-        
-        const content = $el.find('p, .excerpt, .summary, [class*="excerpt"]').first().text().trim() ||
-                        $el.find('p').first().text().trim();
-        
-        const source_url = $el.find('a').first().attr('href') ||
-                          $el.attr('href');
 
-        if (title && source_url) {
-          // Ensure absolute URL
-          const absoluteUrl = source_url.startsWith('http') 
-            ? source_url 
-            : new URL(source_url, SCRAPER_URL).href;
+        const title =
+          $el.find('h2, h3, .title, [class*="title"]').first().text().trim() ||
+          $el.find('a').first().text().trim();
+
+        const content =
+          $el.find('p, .excerpt, .summary, [class*="excerpt"]').first().text().trim() ||
+          $el.find('p').first().text().trim();
+
+        const sourceUrl = $el.find('a').first().attr('href') || $el.attr('href');
+
+        if (title && sourceUrl) {
+          const absoluteUrl = sourceUrl.startsWith('http') ? sourceUrl : new URL(sourceUrl, SCRAPER_URL).href;
 
           articles.push({
             title,
@@ -52,11 +50,25 @@ export const scrapeOldestArticles = async (limit = 5) => {
           });
         }
       } catch (err) {
-        console.warn(`⚠ Error parsing article element:`, err.message);
+        console.warn('⚠ Error parsing article element:', err.message);
       }
     });
 
-    return articles.slice(0, limit);
+    const detailedArticles = [];
+    for (const article of articles.slice(0, limit)) {
+      try {
+        console.log(`\n📄 Fetching full content for: ${article.title.substring(0, 50)}...`);
+        const fullContent = await scrapeArticleContent(article.source_url);
+        console.log(`✓ Stored ${fullContent.length} characters`);
+        detailedArticles.push({ ...article, content: fullContent });
+      } catch (err) {
+        console.warn(`⚠ Could not fetch full content for ${article.source_url}: ${err.message}`);
+        console.warn(`⚠ Falling back to initial excerpt: "${article.content.substring(0, 80)}..."`);
+        detailedArticles.push(article); // fallback to summary/placeholder
+      }
+    }
+
+    return detailedArticles;
   } catch (error) {
     console.error('❌ Scraping error:', error.message);
     throw new Error(`Failed to scrape articles: ${error.message}`);
