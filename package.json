@@ -2,13 +2,13 @@
   "name": "beyondchats-ai-article-pipeline",
   "version": "1.0.0",
   "description": "AI-powered article scraping and management pipeline",
-  "main": "src/index.js",
+  "main": "backend/src/index.js",
   "type": "module",
   "scripts": {
-    "start": "node src/index.js",
-    "dev": "nodemon src/index.js",
-    "scrape": "node src/scripts/scraper.js",
-    "enhance": "node src/scripts/aiEnhancer.js"
+    "start": "node backend/src/index.js",
+    "dev": "nodemon backend/src/index.js",
+    "scrape": "node backend/src/scripts/scraper.js",
+    "enhance": "node backend/src/scripts/aiEnhancer.js"
   },
   "keywords": [
     "scraper",
