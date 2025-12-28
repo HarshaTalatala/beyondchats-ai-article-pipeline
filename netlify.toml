@@ -1,5 +1,5 @@
 [build]
-# Install dependencies; we publish a minimal folder since this is API-only
+# API-only deploy; we just need dependencies installed so functions can bundle
 command = "npm ci"
 publish = "public"
 
