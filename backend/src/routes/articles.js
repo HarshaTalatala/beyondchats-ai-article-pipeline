@@ -1,7 +1,5 @@
 import express from 'express';
 import * as articleModel from '../models/articleModel.js';
-import { enhanceArticleById } from '../services/aiEnhancerService.js';
-
 const router = express.Router();
 
 // POST /articles - Create a new article
@@ -131,6 +129,9 @@ router.delete('/:id', async (req, res) => {
 
 // POST /articles/:id/enhance - Generate an AI-enhanced version of an original article
 router.post('/:id/enhance', async (req, res) => {
+    
+    // Lazy load the AI enhancer service to avoid bundling jsdom in the main function
+    const { enhanceArticleById } = await import('../services/aiEnhancerService.js');
   try {
     const { id } = req.params;
     const generatedArticle = await enhanceArticleById(id);
