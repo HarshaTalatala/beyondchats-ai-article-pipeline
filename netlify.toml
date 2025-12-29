@@ -6,7 +6,8 @@ publish = "public"
 [functions]
 directory = "netlify/functions"
 node_bundler = "esbuild"
-included_files = ["backend/**", "node_modules/**"]
+external_node_modules = ["jsdom", "@mozilla/readability", "canvas"]
+included_files = ["backend/**"]
 
 [functions.api]
 node_bundler = "esbuild"
