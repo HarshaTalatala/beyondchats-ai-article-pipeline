@@ -1,5 +1,4 @@
 import { searchArticles } from '../utils/searchApi.js';
-import { scrapeArticleContent } from '../utils/contentScraper.js';
 import { rewriteArticleWithLLM } from '../utils/llmApi.js';
 import * as articleModel from '../models/articleModel.js';
 
@@ -18,15 +17,19 @@ const assertOriginalArticle = (article) => {
   return article;
 };
 
+const shouldUseReferenceScrape = process.env.ENHANCE_USE_REFERENCE_SCRAPE === 'true';
+
 const findReferenceArticles = async (title) => {
+  if (!shouldUseReferenceScrape) return [];
   const results = await searchArticles(title);
-  if (!results || results.length === 0) {
-    throw new Error('No reference articles found for this topic');
-  }
-  return results;
+  return results || [];
 };
 
 const scrapeReferenceContent = async (searchResults) => {
+  if (!shouldUseReferenceScrape) return [];
+
+  // Lazy load heavy scraper (jsdom) only when enabled
+  const { scrapeArticleContent } = await import('../utils/contentScraper.js');
   const referencedArticles = [];
 
   for (const result of searchResults) {
@@ -41,10 +44,6 @@ const scrapeReferenceContent = async (searchResults) => {
     } catch (error) {
       // Keep going if one scrape fails
     }
-  }
-
-  if (referencedArticles.length === 0) {
-    throw new Error('Failed to scrape any reference articles');
   }
 
   return referencedArticles;
