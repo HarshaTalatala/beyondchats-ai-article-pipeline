@@ -1,7 +1,3 @@
-// Load environment variables
-import dotenv from 'dotenv';
-dotenv.config();
-
 import serverless from 'serverless-http';
 import app from '../../backend/src/app.js';
 import { initializeDatabase } from '../../backend/src/config/database.js';
