@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            cursor: pointer;
+        }
+        pre {
+            background: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        .error { color: red; }
+        .success { color: green; }
+    </style>
+</head>
+<body>
+    <h1>API Connection Test</h1>
+    
+    <div>
+        <button onclick="testHealth()">Test Health Endpoint</button>
+        <button onclick="testArticles()">Test Articles Endpoint</button>
+        <button onclick="testCORS()">Test CORS</button>
+    </div>
+
+    <div id="result"></div>
+
+    <script>
+        const API_URL = 'https://scrapperr.netlify.app';
+        
+        function showResult(title, data, isError = false) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `
+                <h2 class="${isError ? 'error' : 'success'}">${title}</h2>
+                <pre>${JSON.stringify(data, null, 2)}</pre>
+            `;
+        }
+
+        async function testHealth() {
+            try {
+                const response = await fetch(`${API_URL}/health`);
+                const data = await response.json();
+                showResult(`Health Check - Status: ${response.status}`, data);
+            } catch (error) {
+                showResult('Health Check Failed', { error: error.message }, true);
+            }
+        }
+
+        async function testArticles() {
+            try {
+                const response = await fetch(`${API_URL}/articles`);
+                const data = await response.json();
+                showResult(`Articles - Status: ${response.status}`, data);
+            } catch (error) {
+                showResult('Articles Failed', { error: error.message }, true);
+            }
+        }
+
+        async function testCORS() {
+            try {
+                const response = await fetch(`${API_URL}/health`, {
+                    method: 'OPTIONS',
+                    headers: {
+                        'Access-Control-Request-Method': 'GET',
+                        'Access-Control-Request-Headers': 'Content-Type'
+                    }
+                });
+                
+                const headers = {};
+                response.headers.forEach((value, key) => {
+                    headers[key] = value;
+                });
+                
+                showResult(`CORS Preflight - Status: ${response.status}`, { headers });
+            } catch (error) {
+                showResult('CORS Test Failed', { error: error.message }, true);
+            }
+        }
+    </script>
+</body>
+</html>

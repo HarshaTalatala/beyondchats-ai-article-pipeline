@@ -6,27 +6,18 @@ publish = "public"
 [functions]
 directory = "netlify/functions"
 node_bundler = "esbuild"
+included_files = ["backend/**", "node_modules/**"]
+
+[functions.api]
+node_bundler = "esbuild"
+timeout = 30
 
 # Route direct API calls to the serverless function
 [[redirects]]
-from = "/api/*"
+from = "/*"
 to = "/.netlify/functions/api/:splat"
 status = 200
-
-[[redirects]]
-from = "/articles/*"
-to = "/.netlify/functions/api/articles/:splat"
-status = 200
-
-[[redirects]]
-from = "/articles"
-to = "/.netlify/functions/api/articles"
-status = 200
-
-[[redirects]]
-from = "/health"
-to = "/.netlify/functions/api/health"
-status = 200
+force = true
 
 # Add headers for CORS
 [[headers]]
@@ -34,4 +25,5 @@ for = "/*"
   [headers.values]
     Access-Control-Allow-Origin = "*"
     Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
-    Access-Control-Allow-Headers = "Content-Type, Authorization"
+    Access-Control-Allow-Headers = "Content-Type, Authorization, X-Requested-With"
+    Access-Control-Max-Age = "86400"

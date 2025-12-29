@@ -4,23 +4,22 @@ import articlesRouter from './routes/articles.js';
 
 const app = express();
 
-// CORS Configuration
+// CORS Configuration - Allow all origins for API
 const corsOptions = {
-  origin: [
-    'http://localhost:5173',
-    'http://localhost:3000',
-    'https://beyondchats-ai-article-pipeline.vercel.app',
-    /\.vercel\.app$/,
-    /\.netlify\.app$/
-  ],
+  origin: true, // Allow all origins
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  exposedHeaders: ['Content-Length', 'Content-Type'],
+  maxAge: 86400 // 24 hours
 };
 
 // Middleware
 app.use(cors(corsOptions));
 app.use(express.json());
+
+// Add explicit OPTIONS handler
+app.options('*', cors(corsOptions));
 
 // Routes
 app.use('/articles', articlesRouter);
