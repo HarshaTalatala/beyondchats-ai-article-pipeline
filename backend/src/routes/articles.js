@@ -129,10 +129,15 @@ router.delete('/:id', async (req, res) => {
 
 // POST /articles/:id/enhance - Generate an AI-enhanced version of an original article
 router.post('/:id/enhance', async (req, res) => {
-    
+  try {
+    // Optional guard: disable enhance in serverless by default
+    if (process.env.ENABLE_ENHANCE !== 'true') {
+      return res.status(503).json({ error: 'Enhance endpoint is disabled in this environment' });
+    }
+
     // Lazy load the AI enhancer service to avoid bundling jsdom in the main function
     const { enhanceArticleById } = await import('../services/aiEnhancerService.js');
-  try {
+
     const { id } = req.params;
     const generatedArticle = await enhanceArticleById(id);
 
