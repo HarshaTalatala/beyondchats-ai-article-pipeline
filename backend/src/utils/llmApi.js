@@ -12,20 +12,20 @@ export const rewriteArticleWithLLM = async (originalArticle, referenceArticles) 
     throw new Error('GROQ_API_KEY is not set in environment variables');
   }
 
-  if (referenceArticles.length === 0) {
-    throw new Error('At least one reference article is required');
-  }
+    // Allow zero reference articles
+    const referenceTexts = referenceArticles.length > 0
+      ? referenceArticles
+          .map(
+            (ref, idx) =>
+              `Reference ${idx + 1} (from ${ref.source}):\n${ref.content}`
+          )
+          .join('\n\n---\n\n')
+      : 'No reference articles provided.';
 
   try {
     // Initialize Groq SDK
     const groq = new Groq({ apiKey: GROQ_API_KEY });
 
-    const referenceTexts = referenceArticles
-      .map(
-        (ref, idx) =>
-          `Reference ${idx + 1} (from ${ref.source}):\n${ref.content}`
-      )
-      .join('\n\n---\n\n');
 
     const prompt = `You are an expert content writer. I have an original article that I want you to rewrite and improve.
 
@@ -45,10 +45,6 @@ YOUR TASK:
 6. Make it longer and more comprehensive (but still focused)
 
 IMPORTANT:
-- This must be completely original content
-- Use the references as inspiration for HOW to write, not WHAT to write
-- Create value with your own insights and perspective
-- The content should be distinct from both the original and references
 
 Please provide the rewritten article directly without any preamble.`;
 
