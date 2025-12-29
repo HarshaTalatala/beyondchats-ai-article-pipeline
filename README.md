@@ -1,6 +1,6 @@
 # BeyondChats AI Article Pipeline
 
-> An intelligent article scraping, enhancement, and management system powered by AI that fetches articles from BeyondChats, enhances them using top-ranking Google search results, and presents them through a beautiful React interface.
+An intelligent, end-to-end article management system that automates content discovery, AI-powered enhancement, and presentation through a responsive web interface.
 
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
 [![Node.js](https://img.shields.io/badge/Node.js-18+-green.svg)](https://nodejs.org/)
@@ -23,188 +23,105 @@
 
 ## Features
 
-### Phase 1: Article Scraping & CRUD APIs
-- **Web Scraping**: Automatically scrapes the 5 oldest articles from [BeyondChats Blogs](https://beyondchats.com/blogs/)
-- **Database Storage**: Stores articles in SQLite database with full metadata
-- **RESTful CRUD APIs**: Complete Create, Read, Update, Delete operations
-- **Upsert Support**: Prevents duplicate articles using unique source URLs
+### Phase 1: Content Discovery & API Layer
+- **Web Scraping**: Automatically scrapes articles from BeyondChats
+- **Data Persistence**: Stores articles in SQLite database with comprehensive metadata
+- **RESTful APIs**: Complete CRUD operations for article management
+- **Duplicate Prevention**: Upsert mechanism prevents duplicate entries using source URLs
 
 ### Phase 2: AI Enhancement Pipeline
-- **Google Search Integration**: Searches article titles on Google using Serper API
-- **Content Scraping**: Extracts main content from top 2 ranking articles
-- **LLM Rewriting**: Uses Groq AI (Llama 3.1) to rewrite articles in the style of top-ranking content
-- **Reference Citations**: Automatically appends source references at the bottom
-- **Smart Filtering**: Only enhances original articles, not AI-generated ones
+- **Search Integration**: Leverages Google Search API to identify relevant reference material
+- **Content Extraction**: Retrieves and processes top-ranking articles for reference
+- **LLM-Powered Rewriting**: Uses Groq AI (Llama 3.1) to enhance content quality and structure
+- **Source Attribution**: Automatically appends verifiable source references
+- **Intelligent Filtering**: Distinguishes between original and AI-generated content
 
-### Phase 3: React Frontend
-- **Modern UI/UX**: Clean, professional, responsive design
-- **Smart Filtering**: Toggle between All, Original, and AI-Enhanced articles
-- **Statistics Dashboard**: Real-time article counts and metrics
-- **One-Click Enhancement**: Enhance any original article with a single button
-- **Full Article Modal**: Read complete articles in an elegant modal view
-- **Visual Badges**: Clearly distinguish between original and AI-enhanced content
-- **Fully Responsive**: Works seamlessly on desktop, tablet, and mobile
+### Phase 3: User Interface
+- **Modern Design**: Clean, professional, and fully responsive interface
+- **Advanced Filtering**: View All, Original Only, or AI-Enhanced articles
+- **Metrics Dashboard**: Real-time statistics on article inventory
+- **One-Click Enhancement**: Streamlined article enhancement workflow
+- **Article Preview**: Comprehensive modal view with full content
+- **Visual Indicators**: Clear badges distinguish content types
+- **Cross-Device Support**: Optimized for desktop, tablet, and mobile devices
 
 ---
 
 ## Live Demo
 
-### Frontend Application
-**Live URL:** `[Will be deployed on Vercel/Netlify]`
+### Deployed Application
 
-> **Note**: The live demo will be available before the submission deadline. You can view:
-> - All scraped original articles from BeyondChats
-> - AI-enhanced versions with improved formatting and structure
-> - Reference citations for enhanced articles
-> - Real-time article enhancement capability
+- **Frontend**: [https://beyondchats-ai-article-pipeline.vercel.app/](https://beyondchats-ai-article-pipeline.vercel.app/)
+- **Backend**: Deployed on Netlify
+- **Database**: PostgreSQL on NeonDB
 
-### Backend API
-**Live URL:** `[Will be deployed on Render/Railway]`
-
-**API Endpoints:**
-- `GET /articles` - Fetch all articles
-- `GET /articles/:id` - Get single article
-- `POST /articles` - Create new article
-- `PUT /articles/:id` - Update article
-- `DELETE /articles/:id` - Delete article
-- `POST /articles/:id/enhance` - Generate AI-enhanced version
+The full-stack application is production-ready and fully functional.
 
 ---
 
 ## Architecture
 
-### System Architecture Diagram
+### System Overview
 
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│                         PHASE 1: DATA COLLECTION                     │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                       │
-│  BeyondChats Website  ──────┐                                       │
-│  (beyondchats.com/blogs)     │                                       │
-│                              ▼                                       │
-│                      ┌──────────────┐                               │
-│                      │   Scraper    │  (Cheerio + Axios)            │
-│                      │   Script     │  + Readability.js             │
-│                      └──────┬───────┘                               │
-│                              │                                       │
-│                              ▼                                       │
-│                      ┌──────────────┐                               │
-│                      │   SQLite DB  │                               │
-│                      │  (articles)  │                               │
-│                      └──────┬───────┘                               │
-│                              │                                       │
-│                              ▼                                       │
-│                      ┌──────────────┐                               │
-│                      │  CRUD APIs   │  (Express.js)                 │
-│                      │  REST Routes │                               │
-│                      └──────────────┘                               │
-│                                                                       │
-└─────────────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────────────┐
-│                    PHASE 2: AI ENHANCEMENT PIPELINE                  │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                       │
-│  Original Article  ──────┐                                          │
-│  (from database)          │                                          │
-│                           ▼                                          │
-│                   ┌──────────────┐                                  │
-│                   │  Search API  │  (Serper - Google Search)        │
-│                   │   Service    │                                  │
-│                   └──────┬───────┘                                  │
-│                           │                                          │
-│                           ▼                                          │
-│                   ┌──────────────┐                                  │
-│                   │   Top 2 URLs │                                  │
-│                   └──────┬───────┘                                  │
-│                           │                                          │
-│                           ▼                                          │
-│                   ┌──────────────┐                                  │
-│                   │   Content    │  (JSDOM + Readability)           │
-│                   │   Scraper    │  + Cheerio                       │
-│                   └──────┬───────┘                                  │
-│                           │                                          │
-│                           ▼                                          │
-│           ┌──────────────────────────────┐                         │
-│           │  Original + Reference Content │                         │
-│           └──────────┬───────────────────┘                         │
-│                      │                                               │
-│                      ▼                                               │
-│              ┌──────────────┐                                       │
-│              │   LLM API    │  (Groq - Llama 3.1 70B)              │
-│              │   Service    │                                       │
-│              └──────┬───────┘                                       │
-│                      │                                               │
-│                      ▼                                               │
-│              ┌──────────────┐                                       │
-│              │  AI-Enhanced │  + Reference Citations                │
-│              │   Article    │                                       │
-│              └──────┬───────┘                                       │
-│                      │                                               │
-│                      ▼                                               │
-│              ┌──────────────┐                                       │
-│              │   Save via   │                                       │
-│              │   CRUD API   │                                       │
-│              └──────────────┘                                       │
-│                                                                       │
-└─────────────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────────────┐
-│                        PHASE 3: FRONTEND UI                          │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                       │
-│  ┌──────────────────────────────────────────────────────┐          │
-│  │              React Frontend (Vite)                    │          │
-│  │                                                        │          │
-│  │  ┌──────────────────────────────────────────────┐   │          │
-│  │  │  App.jsx (Main Component)                     │   │          │
-│  │  │  ├─ Filter Bar (All/Original/AI-Enhanced)    │   │          │
-│  │  │  ├─ Statistics Display                        │   │          │
-│  │  │  └─ Articles Grid                             │   │          │
-│  │  └────────────┬─────────────────────────────────┘   │          │
-│  │               │                                       │          │
-│  │               ▼                                       │          │
-│  │  ┌─────────────────────────────────────────────┐    │          │
-│  │  │  ArticleCard.jsx (Individual Cards)         │    │          │
-│  │  │  ├─ Badge (Original/AI-Enhanced)            │    │          │
-│  │  │  ├─ Title & Content Preview                 │    │          │
-│  │  │  ├─ "Enhance with AI" Button                │    │          │
-│  │  │  └─ References Section                      │    │          │
-│  │  └──────────┬──────────────────────────────────┘    │          │
-│  │             │                                         │          │
-│  │             ▼                                         │          │
-│  │  ┌──────────────────────────────────────────┐       │          │
-│  │  │  ArticleModal.jsx (Full View)            │       │          │
-│  │  │  └─ Complete Article Display             │       │          │
-│  │  └──────────────────────────────────────────┘       │          │
-│  │                                                        │          │
-│  └────────────────────┬───────────────────────────────┘          │
-│                        │                                           │
-│                        │  HTTP Requests (fetch)                   │
-│                        ▼                                           │
-│                ┌──────────────┐                                   │
-│                │  Backend API │                                   │
-│                │  (Port 3000) │                                   │
-│                └──────────────┘                                   │
-│                                                                     │
-└─────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────┐
+│                                                                            │
+│                        BEYONDCHATS AI PIPELINE                            │
+│                                                                            │
+│  ┌────────────┐      ┌─────────────┐      ┌──────────────┐              │
+│  │   DATA     │      │     AI      │      │   FRONTEND   │              │
+│  │ DISCOVERY  │  →   │ ENHANCEMENT │  →   │    (React)   │              │
+│  └────────────┘      └─────────────┘      └──────────────┘              │
+│                                                                            │
+└──────────────────────────────────────────────────────────────────────────┘
 ```
 
-### Data Flow
+### Phase 1: Content Discovery
 
 ```
-1. SCRAPING FLOW
-   BeyondChats → Web Scraper → Content Extractor → Database → CRUD API
-
-2. ENHANCEMENT FLOW
-   User Request → API Endpoint → Search Google → Scrape Top 2 Articles
-   → Send to LLM → Generate Enhanced Article → Add References → Save to DB
-
-3. DISPLAY FLOW
-   Frontend Request → Backend API → Database Query → JSON Response
-   → React Components → User Interface
+BeyondChats Website
+        ↓
+    Scraper (Cheerio + Axios + Readability)
+        ↓
+    PostgreSQL (NeonDB)
+        ↓
+    REST APIs (Express.js)
 ```
+
+### Phase 2: AI Enhancement Pipeline
+
+```
+Original Article (from DB)
+        ↓
+Search API (Serper - Google Search)
+        ↓
+Top 2 Reference Articles
+        ↓
+Content Scraper (JSDOM + Readability + Cheerio)
+        ↓
+LLM Service (Groq - Llama 3.1 70B)
+        ↓
+AI-Enhanced Article + Citations
+        ↓
+Save to Database
+```
+
+### Phase 3: User Interface
+
+```
+React Frontend (Vite)
+├─ Filter Controls (All/Original/AI-Enhanced)
+├─ Statistics Dashboard
+├─ Article Grid
+│  └─ ArticleCard Components
+│     ├─ Content Badge
+│     ├─ Article Preview
+│     └─ Enhance Button
+└─ ArticleModal (Full Article View)
+        ↓
+Backend API (HTTP/REST)
+        ↓
+Database Queries
 
 ### Database Schema
 
@@ -247,30 +164,29 @@ CREATE TABLE IF NOT EXISTS articles (
 
 ---
 
-## Tech Stack
+## Technology Stack
 
 ### Backend
-- **Node.js** (v18+) - Runtime environment
-- **Express.js** - Web framework
-- **SQLite3** - Lightweight database
-- **Axios** - HTTP client for scraping
-- **Cheerio** - Fast HTML parsing
-- **JSDOM** - DOM implementation for Node.js
-- **@mozilla/readability** - Article content extraction
-- **Groq SDK** - AI/LLM integration (Llama 3.1 70B)
-- **Serper API** - Google Search integration
+- **Node.js** (v18+) - JavaScript runtime
+- **Express.js** - REST API framework
+- **SQLite3** - Embedded relational database
+- **Axios** - HTTP client
+- **Cheerio** - HTML parsing and DOM manipulation
+- **JSDOM** - JavaScript DOM implementation for Node.js
+- **@mozilla/readability** - Intelligent article content extraction
+- **Groq SDK** - Large language model integration
+- **Serper API** - Search engine API integration
 
 ### Frontend
-- **React** (v18) - UI library
-- **Vite** - Build tool and dev server
-- **CSS3** - Styling with modern features
-- **Fetch API** - HTTP requests
+- **React** (v18) - User interface framework
+- **Vite** - Build tooling and development server
+- **CSS3** - Styling and responsive design
+- **Fetch API** - HTTP communication
 
-### DevOps & Tools
-- **dotenv** - Environment variable management
-- **nodemon** - Development auto-reload
-- **CORS** - Cross-origin resource sharing
-- **ESLint** - Code linting (optional)
+### Development Tools
+- **dotenv** - Environment configuration management
+- **nodemon** - Automatic server reload during development
+- **CORS** - Cross-origin request handling
 
 ---
 
@@ -278,10 +194,10 @@ CREATE TABLE IF NOT EXISTS articles (
 
 ### Prerequisites
 
-Before you begin, ensure you have the following installed:
-- **Node.js** (v18 or higher) - [Download here](https://nodejs.org/)
-- **npm** (comes with Node.js)
-- **Git** - [Download here](https://git-scm.com/)
+Ensure the following are installed:
+- **Node.js** (v18+) - [Download](https://nodejs.org/)
+- **npm** - Included with Node.js
+- **Git** - [Download](https://git-scm.com/)
 
 ### Step 1: Clone the Repository
 
@@ -290,185 +206,114 @@ git clone https://github.com/YOUR_USERNAME/beyondchats-ai-article-pipeline.git
 cd beyondchats-ai-article-pipeline
 ```
 
-### Step 2: Backend Setup
+### Step 2: Backend Configuration
 
-#### 2.1 Install Backend Dependencies
+#### 2.1 Install Dependencies
 
 ```bash
 npm install
 ```
 
-#### 2.2 Configure Environment Variables
+#### 2.2 Configure Environment
 
 Create a `.env` file in the root directory:
 
-```bash
-cp .env.example .env
-```
-
-Edit `.env` with your API keys:
-
 ```env
-# Server Configuration
+# Server
 PORT=3000
 NODE_ENV=development
 
-# Scraper Configuration
+# Scraper
 SCRAPER_URL=https://beyondchats.com/blogs/
 
-# Google Search API (Serper.dev)
-# Get free API key from: https://serper.dev/
-SERPER_API_KEY=your_serper_api_key_here
+# Google Search API - Get free key from https://serper.dev/
+SERPER_API_KEY=your_key_here
 
-# Groq AI API (Free tier available)
-# Get free API key from: https://console.groq.com/
-GROQ_API_KEY=your_groq_api_key_here
+# Groq AI API - Get free key from https://console.groq.com/
+GROQ_API_KEY=your_key_here
 LLM_MODEL=llama-3.1-70b-versatile
 ```
 
-#### 2.3 Create Database Directory
+#### 2.3 Initialize Database
 
 ```bash
-mkdir backend/db
+mkdir -p backend/db
 ```
 
-#### 2.4 Start Backend Server
+#### 2.4 Start Server
 
 ```bash
-# Development mode (with auto-reload)
+# Development mode
 npm run dev
 
 # Production mode
 npm start
 ```
 
-The backend will start on `http://localhost:3000`
+Server runs on `http://localhost:3000`
 
-**Auto-scraping**: If the database is empty, the server automatically scrapes 5 articles on startup!
+### Step 3: Frontend Configuration
 
-### Step 3: Frontend Setup
-
-#### 3.1 Navigate to Frontend Directory
+#### 3.1 Navigate to Frontend
 
 ```bash
 cd frontend
 ```
 
-#### 3.2 Install Frontend Dependencies
+#### 3.2 Install Dependencies
 
 ```bash
 npm install
 ```
 
-#### 3.3 Configure Frontend Environment
+#### 3.3 Configure Environment
 
-Create a `.env` file in the `frontend` directory:
-
-```bash
-cp .env.example .env
-```
-
-Edit `frontend/.env`:
+Create `frontend/.env`:
 
 ```env
 VITE_API_BASE_URL=http://localhost:3000
 ```
 
-#### 3.4 Start Frontend Development Server
+#### 3.4 Start Development Server
 
 ```bash
 npm run dev
 ```
 
-The frontend will start on `http://localhost:5173`
+Frontend runs on `http://localhost:5173`
 
-### Step 4: Verify Installation
+### Step 4: Verification
 
-1. **Backend**: Visit `http://localhost:3000/health` - Should return `{"status": "ok"}`
-2. **Frontend**: Visit `http://localhost:5173` - Should display the article dashboard
-3. **Database**: Check if articles were auto-scraped in the backend console logs
+1. **Backend**: Visit `http://localhost:3000/health`
+2. **Frontend**: Visit `http://localhost:5173`
+3. **Database**: Check console logs for auto-scraped articles
 
 ---
 
 ## Usage Guide
 
-### 1. Scraping Articles (Manual)
-
-If you want to manually scrape articles:
+### Manual Scraping
 
 ```bash
 npm run scrape
 ```
 
-This will:
-- Fetch the 5 oldest articles from BeyondChats
-- Extract full content from each article page
-- Store them in the database (or update if they exist)
+### Article Enhancement
 
-### 2. Enhancing Articles
+#### From UI
+1. Open frontend at `http://localhost:5173`
+2. Locate an original article (blue badge)
+3. Click "Enhance with AI"
+4. Wait for processing (20-30 seconds)
 
-#### Via Frontend UI:
-1. Open the frontend at `http://localhost:5173`
-2. Find an "Original" article (marked with blue badge)
-3. Click the **"Enhance with AI"** button
-4. Wait for the enhancement process (20-30 seconds)
-5. The new AI-enhanced article will appear with an "AI-Enhanced" badge
-
-#### Via Script:
+#### Via Script
 ```bash
 npm run enhance
 ```
 
-This will:
-- Randomly select an original article
-- Search Google for the article title
-- Scrape top 2 ranking articles
-- Send content to Groq AI for rewriting
-- Save the enhanced version with references
-
-#### Via API:
+#### Via API
 ```bash
 curl -X POST http://localhost:3000/articles/1/enhance
-```
-
-### 3. Managing Articles via API
-
-#### Get All Articles
-```bash
-curl http://localhost:3000/articles
-```
-
-#### Get Single Article
-```bash
-curl http://localhost:3000/articles/1
-```
-
-#### Create Article
-```bash
-curl -X POST http://localhost:3000/articles \
-  -H "Content-Type: application/json" \
-  -d '{
-    "title": "My Article",
-    "content": "Article content here...",
-    "source_url": "https://example.com/article",
-    "type": "original"
-  }'
-```
-
-#### Update Article
-```bash
-curl -X PUT http://localhost:3000/articles/1 \
-  -H "Content-Type: application/json" \
-  -d '{
-    "title": "Updated Title",
-    "content": "Updated content...",
-    "type": "original"
-  }'
-```
-
-#### Delete Article
-```bash
-curl -X DELETE http://localhost:3000/articles/1
 ```
 
 ---
@@ -479,8 +324,6 @@ curl -X DELETE http://localhost:3000/articles/1
 ```
 http://localhost:3000
 ```
-
-### Endpoints
 
 #### 1. Health Check
 ```http
@@ -805,7 +648,7 @@ DATABASE_URL=postgresql://user:password@your-neon-host/dbname?sslmode=require
 - Enable SSL only when required (Neon uses `sslmode=require`).
 - Prefer short-lived queries; avoid long transactions in serverless.
 - Use `RETURNING` for inserts/updates to get ids without extra round-trips.
-- In this repo, see backend config at [backend/src/config/database.js](backend/src/config/database.js) and schema at [backend/db/schema.sql](backend/db/schema.sql).
+- See [backend/src/config/database.js](backend/src/config/database.js) and [backend/db/schema.sql](backend/db/schema.sql) for examples.
 
 ### Frontend (.env)
 
@@ -815,184 +658,47 @@ DATABASE_URL=postgresql://user:password@your-neon-host/dbname?sslmode=require
 
 ### Getting API Keys
 
-#### Serper API (Google Search)
+#### Serper (Google Search)
 1. Visit [serper.dev](https://serper.dev/)
-2. Sign up for a free account
-3. Get your API key from the dashboard
-4. **Free tier**: 2,500 searches/month
+2. Register for free account
+3. Copy API key from dashboard
+4. **Free Tier**: 2,500 searches/month
 
-#### Groq API (AI/LLM)
+#### Groq (AI/LLM)
 1. Visit [console.groq.com](https://console.groq.com/)
-2. Sign up for a free account
-3. Create an API key
-4. **Free tier**: High rate limits with fast inference
+2. Create account
+3. Generate API key
+4. **Free Tier**: Generous rate limits
 
 ---
 
-## Development Journey
+## Development Guide
 
-This project was built systematically across three phases:
+### Project Architecture
 
-### Phase 1: Foundation (Day 1-2)
-- Set up Node.js + Express backend
-- Implemented SQLite database with proper schema
-- Built web scraping functionality (Cheerio + Axios)
-- Created RESTful CRUD APIs
-- Added auto-scraping on server startup
-- Tested all API endpoints
+The application follows a three-phase architecture:
 
-### Phase 2: AI Integration (Day 3-4)
-- Integrated Serper API for Google Search
-- Built robust content scraper (Readability + JSDOM + Cheerio)
-- Connected Groq AI for article rewriting
-- Implemented enhancement service layer
-- Added reference citation system
-- Created standalone enhancement script
+1. **Data Collection**: Web scraping and CRUD operations
+2. **AI Enhancement**: Content augmentation with language models
+3. **Presentation**: User interface and client interactions
 
-### Phase 3: Frontend (Day 5-6)
-- Built React + Vite frontend
-- Designed responsive UI with CSS Grid
-- Implemented filter functionality
-- Added article enhancement from UI
-- Created modal for full article view
-- Added loading and error states
-- Polished styling and UX
+## Deployment
 
-### Optimization & Polish (Day 7)
-- Fixed VirtualConsole import bug
-- Added auto-scraping on empty database
-- Improved error handling
-- Enhanced content extraction logic
-- Added comprehensive documentation
-- Prepared for deployment
+### Frontend (Vercel) ✅
+Deployed at: https://beyondchats-ai-article-pipeline.vercel.app/
 
----
+Configuration:
+- Framework: Vite
+- Root Directory: `frontend`
+- Build Command: `npm run build`
+- Output: `dist`
+- Environment: `VITE_API_BASE_URL`
 
-## Deployment Guide
+### Backend (Netlify) ✅
+Successfully deployed with serverless functions.
 
-### Frontend Deployment (Vercel)
-
-1. Push code to GitHub
-2. Visit [vercel.com](https://vercel.com/)
-3. Import your repository
-4. Set build settings:
-   - **Framework**: Vite
-   - **Root Directory**: `frontend`
-   - **Build Command**: `npm run build`
-   - **Output Directory**: `dist`
-5. Add environment variable:
-   - `VITE_API_BASE_URL`: Your backend URL
-6. Deploy!
-
-### Backend Deployment (Render)
-
-1. Visit [render.com](https://render.com/)
-2. Create new Web Service
-3. Connect your GitHub repository
-4. Set configuration:
-   - **Environment**: Node
-   - **Build Command**: `npm install`
-   - **Start Command**: `npm start`
-   - **Root Directory**: Leave empty (uses root)
-5. Add environment variables (all from `.env`)
-6. Deploy!
-
-### Alternative: Railway
-
-1. Visit [railway.app](https://railway.app/)
-2. Create new project from GitHub
-3. Add environment variables
-4. Railway auto-detects Node.js and deploys
-
----
-
-## Testing
-
-### Manual Testing Checklist
-
-#### Backend API
-- [ ] Server starts without errors
-- [ ] Health endpoint returns OK
-- [ ] GET /articles returns all articles
-- [ ] GET /articles/:id returns single article
-- [ ] POST /articles creates new article
-- [ ] PUT /articles/:id updates article
-- [ ] DELETE /articles/:id deletes article
-- [ ] POST /articles/:id/enhance generates AI article
-- [ ] Auto-scraping works on empty database
-
-#### Frontend
-- [ ] Page loads without errors
-- [ ] Articles display in grid layout
-- [ ] Filter buttons work (All/Original/AI-Enhanced)
-- [ ] Statistics update correctly
-- [ ] "Enhance with AI" button works
-- [ ] Loading states display during enhancement
-- [ ] Error messages show on failures
-- [ ] Article modal opens and closes
-- [ ] Responsive design works on mobile
-- [ ] References section displays correctly
-
-#### Integration
-- [ ] Frontend connects to backend API
-- [ ] Enhanced articles appear immediately after creation
-- [ ] Refresh preserves data from database
-- [ ] No CORS errors in console
-
----
-
-## Troubleshooting
-
-### Backend won't start
-```bash
-# Check if port 3000 is already in use
-netstat -ano | findstr :3000   # Windows
-lsof -i :3000                  # Mac/Linux
-
-# Kill process and restart
-npm run dev
-```
-
-### Frontend can't connect to backend
-```bash
-# Verify backend is running
-curl http://localhost:3000/health
-
-# Check frontend .env
-cat frontend/.env
-
-# Ensure CORS is enabled in backend
-```
-
-### Scraping returns no articles
-```bash
-# The BeyondChats website structure may have changed
-# Check the console logs for scraping errors
-# You may need to update selectors in backend/src/utils/scraper.js
-```
-
-### AI enhancement fails
-```bash
-# Verify API keys are set
-echo $SERPER_API_KEY
-echo $GROQ_API_KEY
-
-# Check API quotas on provider dashboards
-# Serper: https://serper.dev/dashboard
-# Groq: https://console.groq.com/
-```
-
-### Database errors
-```bash
-# Delete and recreate database
-rm backend/db/articles.db
-npm run dev  # Will auto-create tables
-
-# Or manually initialize
-sqlite3 backend/db/articles.db < backend/src/config/schema.sql
-```
-
----
+### Database (NeonDB) ✅
+PostgreSQL database hosted on NeonDB for production use.
 
 ## Contributing
 
@@ -1014,61 +720,22 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Author
 
-**Harsh** (BeyondChats Assignment)
-
-- GitHub: [@YOUR_USERNAME](https://github.com/YOUR_USERNAME)
-- Email: your.email@example.com
+**Harsha** - BeyondChats Project
 
 ---
 
 ## Acknowledgments
 
-- **BeyondChats** - For the challenging and educational assignment
-- **Groq** - For providing free, fast AI inference
-- **Serper** - For Google Search API access
-- **Mozilla Readability** - For excellent article extraction
-- **React & Vite** - For smooth frontend development
-
----
-
-## Project Statistics
-
-- **Total Lines of Code**: ~3,000+
-- **Development Time**: 7 days
-- **API Endpoints**: 7
-- **React Components**: 3
-- **External APIs**: 2 (Serper, Groq)
-- **Database Tables**: 1
-- **Features Implemented**: All 3 phases (Complete)
-
----
-
-## Learning Outcomes
-
-Through this project, I gained experience in:
-- Full-stack JavaScript development
-- RESTful API design and implementation
-- Web scraping techniques and best practices
-- AI/LLM integration for content generation
-- React state management and component design
-- Database design and SQL operations
-- Error handling and async operations
-- Deployment and DevOps workflows
-
----
-
-## Support
-
-For issues or questions:
-- Open an issue on GitHub
-- Contact: your.email@example.com
+- **BeyondChats** - Project foundation
+- **Groq** - Free AI inference  
+- **Serper** - Search API integration
+- **Mozilla Readability** - Content extraction
+- **React & Vite** - Development tools
 
 ---
 
 <div align="center">
 
-**Built for BeyondChats**
-
-Star this repo if you found it helpful!
+Built with professional coding standards.
 
 </div>
